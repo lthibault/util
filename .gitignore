@@ -5,8 +5,18 @@
 *.so
 *.dylib
 
+<<<<<<< HEAD
 # Test binary, build with `go test -c`
+=======
+# Test binary, built with `go test -c`
+>>>>>>> 9d999f5b483bd83296f549da4b32f5850c32088b
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+<<<<<<< HEAD
+=======
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+>>>>>>> 9d999f5b483bd83296f549da4b32f5850c32088b
