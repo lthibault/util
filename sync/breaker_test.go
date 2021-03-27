@@ -43,21 +43,16 @@ func TestBreaker(t *testing.T) {
 	t.Run("Break", func(t *testing.T) {
 		t.Parallel()
 
-		t.Run("Nop", func(t *testing.T) {
-			t.Parallel()
+		var b syncutil.Breaker
 
-			var b syncutil.Breaker
-
-			b.Go(func() error {
-				time.Sleep(time.Millisecond * 10)
-				return errors.New("test")
-			})
-
-			b.Break()
-			b.Go(func() error { panic("unreachable") }) // expect skip
-
-			assert.Error(t, b.Wait())
+		b.Go(func() error {
+			time.Sleep(time.Millisecond * 10)
+			return errors.New("test")
 		})
 
+		b.Break()
+		b.Go(func() error { panic("unreachable") }) // expect skip
+
+		assert.Error(t, b.Wait())
 	})
 }
