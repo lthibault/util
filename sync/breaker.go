@@ -1,6 +1,9 @@
 package syncutil
 
-import "sync"
+import (
+	"context"
+	"sync"
+)
 
 // A Breaker calls functions in separate goroutines, returning a nil
 // error if one succeeds.  Contrary to 'Any', calls to 'Wait" will
@@ -18,6 +21,19 @@ type Breaker struct {
 
 	errOnce sync.Once
 	err     error
+
+	cancel context.CancelFunc
+}
+
+// BreakerWithContext returns a Breaker and an associated context derived
+// from ctx.
+//
+// The derived Context is canceled the first time a function passed to Go
+// succeeds (returns a nil error) or the first time Wait returns, whichever occurs
+// first.
+func BreakerWithContext(ctx context.Context) (*Breaker, context.Context) {
+	ctx, cancel := context.WithCancel(ctx)
+	return &Breaker{cancel: cancel}, ctx
 }
 
 // Go calls the function in a separate goroutine.  If 'Break' has been
@@ -52,6 +68,9 @@ func (b *Breaker) Go(f func() error) {
 		b.closeOnce.Do(func() {
 			b.ok = true
 			close(b.done)
+			if b.cancel != nil {
+				b.cancel()
+			}
 		})
 	}()
 }
@@ -66,7 +85,12 @@ func (b *Breaker) Break() {
 	defer b.mu.Unlock()
 
 	if b.brk = true; b.ctr == 0 {
-		b.closeOnce.Do(func() { close(b.done) })
+		b.closeOnce.Do(func() {
+			close(b.done)
+			if b.cancel != nil {
+				b.cancel()
+			}
+		})
 	}
 }
 

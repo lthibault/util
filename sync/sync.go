@@ -37,12 +37,12 @@ type Any struct {
 	err     error
 }
 
-// WithContext returns a new Any and an associated Context derived from ctx.
+// AnyWithContext returns a new Any and an associated Context derived from ctx.
 //
 // The derived Context is canceled the first time a function passed to Go
 // succeeds (returns a nil error) or the first time Wait returns, whichever occurs
 // first.
-func WithContext(ctx context.Context) (*Any, context.Context) {
+func AnyWithContext(ctx context.Context) (*Any, context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	return &Any{cancel: cancel}, ctx
 }

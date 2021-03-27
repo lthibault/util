@@ -41,7 +41,7 @@ func TestAny(t *testing.T) {
 		t.Parallel()
 
 		var flag syncutil.Flag
-		any, ctx := syncutil.WithContext(context.Background())
+		any, ctx := syncutil.AnyWithContext(context.Background())
 
 		any.Go(func() error {
 			time.Sleep(time.Millisecond * 5)
