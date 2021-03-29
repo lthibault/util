@@ -1,3 +1,4 @@
+// Package syncutil contains advanced synchronization primitives.
 package syncutil
 
 import (
