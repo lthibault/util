@@ -5,6 +5,8 @@ import (
 	"context"
 	"sync"
 	"sync/atomic"
+
+	"go.uber.org/multierr"
 )
 
 // FuncGroup calls a group of functions in separate goroutines and waits until they have
@@ -82,6 +84,36 @@ func (a *Any) Wait() error {
 	}
 
 	return a.err
+}
+
+// Join calls a group of functions in separate goroutines and waits until they have
+// all returned.  The error returned by Join is a go.uber.org/multierr and is non-nil
+// if any function returned a non-nil error.
+//
+// Unlike pkg.go.dev/golang.org/x/sync/errgroup, Join does not return until the full
+// set uf goroutines has finished
+//
+// A zero-value Join is valid.  Join must not be copied after first use.
+type Join struct {
+	fg FuncGroup
+
+	mu  sync.Mutex
+	err error
+}
+
+func (j *Join) Go(f func() error) {
+	j.fg.Go(func() {
+		if err := f(); err != nil {
+			j.mu.Lock()
+			multierr.AppendInto(&j.err, err)
+			j.mu.Unlock()
+		}
+	})
+}
+
+func (j *Join) Wait() error {
+	j.fg.Wait()
+	return j.err
 }
 
 // Ctr is a lock-free counter
