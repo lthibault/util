@@ -25,16 +25,16 @@ type BarrierChan struct {
 	cq chan struct{}
 }
 
-func NewBarrierChan(n uint32) *BarrierChan {
-	return &BarrierChan{
+func NewBarrierChan(n uint32) BarrierChan {
+	return BarrierChan{
 		b:  (*Barrier)(&n),
 		cq: make(chan struct{}),
 	}
 }
 
-func (b *BarrierChan) Done() <-chan struct{} { return b.cq }
+func (b BarrierChan) Done() <-chan struct{} { return b.cq }
 
-func (b *BarrierChan) SignalAndWait(finalize func()) {
+func (b BarrierChan) SignalAndWait(finalize func()) {
 	b.b.Ready(func() {
 		defer close(b.cq)
 		finalize()
