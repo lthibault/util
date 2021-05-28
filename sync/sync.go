@@ -18,8 +18,10 @@ type FuncGroup sync.WaitGroup
 // Go runs the supplied function in a goroutine
 func (g *FuncGroup) Go(f func()) {
 	(*sync.WaitGroup)(g).Add(1)
-	defer (*sync.WaitGroup)(g).Done()
-	f()
+	go func() {
+		defer (*sync.WaitGroup)(g).Done()
+		f()
+	}()
 }
 
 // Wait for all goroutines to complete

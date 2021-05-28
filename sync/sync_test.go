@@ -68,18 +68,34 @@ func TestAny(t *testing.T) {
 func TestFuncGroup(t *testing.T) {
 	t.Parallel()
 
-	var g syncutil.FuncGroup
+	const n = 10
 
-	var ctr syncutil.Ctr
-	for i := 0; i < 10; i++ {
-		g.Go(func() {
-			time.Sleep(time.Millisecond * time.Duration(i))
-			ctr.Incr()
-		})
+	var (
+		g   syncutil.FuncGroup
+		ctr syncutil.Ctr
+	)
+
+	for i := 0; i < n; i++ {
+		g.Go(func(i int) func() {
+			return func() {
+				time.Sleep(time.Millisecond * time.Duration(i))
+				ctr.Incr()
+			}
+		}(i))
 	}
 
-	g.Wait()
-	assert.Equal(t, 10, ctr.Num())
+	ch := make(chan struct{})
+	go func() {
+		defer close(ch)
+		g.Wait()
+	}()
+
+	select {
+	case <-ch:
+		assert.Equal(t, n, ctr.Num())
+	case <-time.After(time.Millisecond*n + (n / 2)):
+		t.Error("regression:  is FuncGroup actually spawning a goroutine?")
+	}
 }
 
 func TestFlag(t *testing.T) {
