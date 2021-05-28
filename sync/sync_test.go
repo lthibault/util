@@ -8,6 +8,7 @@ import (
 
 	syncutil "github.com/lthibault/util/sync"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAny(t *testing.T) {
@@ -107,4 +108,20 @@ func TestCtr(t *testing.T) {
 
 	ctr.Decr()
 	assert.Zero(t, ctr)
+}
+
+func TestJoin(t *testing.T) {
+	var (
+		j   syncutil.Join
+		ctr syncutil.Ctr
+	)
+
+	j.Go(func() error { return errors.New("test") })
+	j.Go(func() error {
+		time.Sleep(time.Millisecond)
+		ctr.Incr()
+		return nil
+	})
+
+	require.EqualError(t, j.Wait(), "test")
 }
