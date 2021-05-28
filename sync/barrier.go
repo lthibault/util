@@ -26,10 +26,14 @@ func NewBarrierChan(n uint32) BarrierChan {
 
 func (b BarrierChan) Done() <-chan struct{} { return b.cq }
 
-func (b BarrierChan) SignalAndWait(finalize func()) {
-	b.b.Signal(func() {
+func (b BarrierChan) Signal(finalize func()) (ready bool) {
+	return b.b.Signal(func() {
 		defer close(b.cq)
 		finalize()
 	})
+}
+
+func (b BarrierChan) SignalAndWait(finalize func()) {
+	b.Signal(finalize)
 	<-b.cq
 }
