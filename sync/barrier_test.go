@@ -9,13 +9,19 @@ import (
 )
 
 func TestBarrierChan(t *testing.T) {
+	const n = 10
+
 	var (
-		ctr syncutil.Ctr
-		bc  = syncutil.NewBarrierChan(2)
+		ran, finalized syncutil.Ctr
+		bc             = syncutil.NewBarrierChan(n)
 	)
 
-	go bc.SignalAndWait(func() { ctr.Incr() })
-	go bc.SignalAndWait(func() { ctr.Incr() })
+	for i := 0; i < n; i++ {
+		go func() {
+			ran.Incr()
+			bc.SignalAndWait(func() { finalized.Incr() })
+		}()
+	}
 
 	select {
 	case <-time.After(time.Millisecond * 10):
@@ -23,5 +29,6 @@ func TestBarrierChan(t *testing.T) {
 	case <-bc.Done():
 	}
 
-	require.Equal(t, 1, ctr.Num())
+	require.Equal(t, n, ran.Num())
+	require.Equal(t, 1, finalized.Num())
 }
