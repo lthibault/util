@@ -29,6 +29,6 @@ func TestBarrierChan(t *testing.T) {
 	case <-bc.Done():
 	}
 
-	require.Equal(t, n, ran.Num())
-	require.Equal(t, 1, finalized.Num())
+	require.Equal(t, n, ran.Int())
+	require.Equal(t, 1, finalized.Int())
 }

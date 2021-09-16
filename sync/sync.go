@@ -127,9 +127,15 @@ func (ctr *Ctr) Incr() uint32 { return atomic.AddUint32((*uint32)(ctr), 1) }
 // Decr decrements the counter
 func (ctr *Ctr) Decr() uint32 { return atomic.AddUint32((*uint32)(ctr), ^uint32(0)) }
 
-// Num returns the generic-integer value of the counter.
+// Int atomically loads the value as an untyped integer.
 // This is useful for integer comparisons, e.g. with `len`.
-func (ctr *Ctr) Num() int { return int(atomic.LoadUint32((*uint32)(ctr))) }
+func (ctr *Ctr) Int() int { return int(ctr.Load()) }
+
+// Uint atomically loads the value as an untyped uint.
+func (ctr *Ctr) Uint() uint { return uint(ctr.Load()) }
+
+// Load the value as a native uint32.
+func (ctr *Ctr) Load() uint32 { return atomic.LoadUint32((*uint32)(ctr)) }
 
 // Ctr64 is a 64-bit, lock-free counter
 type Ctr64 uint64
@@ -140,9 +146,15 @@ func (ctr *Ctr64) Incr() uint64 { return atomic.AddUint64((*uint64)(ctr), 1) }
 // Decr decrements the counter
 func (ctr *Ctr64) Decr() uint64 { return atomic.AddUint64((*uint64)(ctr), ^uint64(0)) }
 
-// Num returns the generic-integer value of the counter.
+// Int atomically loads the value as an untyped integeger.
 // This is useful for integer comparisons, e.g. with `len`.
-func (ctr *Ctr64) Num() int { return int(atomic.LoadUint64((*uint64)(ctr))) }
+func (ctr *Ctr64) Int() int { return int(ctr.Load()) }
+
+// Uint atomically loads the value as an untyped uint.
+func (ctr *Ctr64) Uint() uint { return uint(ctr.Load()) }
+
+// Load the value as a native uint64.
+func (ctr *Ctr64) Load() uint64 { return atomic.LoadUint64((*uint64)(ctr)) }
 
 // Flag is a lock-free boolean flag
 type Flag uint32

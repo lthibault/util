@@ -92,7 +92,7 @@ func TestFuncGroup(t *testing.T) {
 
 	select {
 	case <-ch:
-		assert.Equal(t, n, ctr.Num())
+		assert.Equal(t, n, ctr.Int())
 	case <-time.After(time.Millisecond*n + (n / 2)):
 		t.Error("regression:  is FuncGroup actually spawning a goroutine?")
 	}
@@ -120,7 +120,7 @@ func TestCtr(t *testing.T) {
 	assert.Zero(t, ctr)
 
 	ctr.Incr()
-	assert.Equal(t, 1, ctr.Num())
+	assert.Equal(t, 1, ctr.Int())
 
 	ctr.Decr()
 	assert.Zero(t, ctr)
