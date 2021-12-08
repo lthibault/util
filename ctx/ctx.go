@@ -7,15 +7,15 @@ import (
 )
 
 // FromChan turns a <-chan struct{} into a context.
-func FromChan(c <-chan struct{}) context.Context { return chanCtx(c) }
+func FromChan(c <-chan struct{}) context.Context { return C(c) }
 
-type chanCtx <-chan struct{}
+type C <-chan struct{}
 
-func (c chanCtx) Done() <-chan struct{}         { return c }
-func (chanCtx) Deadline() (time.Time, bool)     { return time.Time{}, false }
-func (c chanCtx) Value(interface{}) interface{} { return nil }
+func (c C) Done() <-chan struct{}                 { return c }
+func (C) Deadline() (deadline time.Time, ok bool) { return }
+func (c C) Value(interface{}) interface{}         { return nil }
 
-func (c chanCtx) Err() error {
+func (c C) Err() error {
 	select {
 	case <-c.Done():
 		return context.Canceled
