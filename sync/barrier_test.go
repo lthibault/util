@@ -9,6 +9,8 @@ import (
 )
 
 func TestBarrierChan(t *testing.T) {
+	t.Parallel()
+
 	const n = 10
 
 	var (

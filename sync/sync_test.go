@@ -127,6 +127,8 @@ func TestCtr(t *testing.T) {
 }
 
 func TestJoin(t *testing.T) {
+	t.Parallel()
+
 	var (
 		j   syncutil.Join
 		ctr syncutil.Ctr
