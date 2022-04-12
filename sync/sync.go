@@ -167,3 +167,17 @@ func (f *Flag) Unset() { atomic.CompareAndSwapUint32((*uint32)(f), 1, 0) }
 
 // Bool evaluates the flag's value
 func (f *Flag) Bool() bool { return atomic.LoadUint32((*uint32)(f)) != 0 }
+
+// Runs f while holding the lock
+func With(l sync.Locker, f func()) {
+	l.Lock()
+	defer l.Unlock()
+	f()
+}
+
+// Runs f while not holding the lock
+func Without(l sync.Locker, f func()) {
+	l.Unlock()
+	defer l.Lock()
+	f()
+}
